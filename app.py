@@ -1,3 +1,13 @@
+import subprocess
+import sys
+
+# Erzwingt die automatische Installation benötigter Pakete direkt im Code
+for package in ["openpyxl", "matplotlib"]:
+    try:
+        __import__(package)
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
 import streamlit as st
 import pandas as pd
 import io
@@ -63,7 +73,7 @@ if uploaded_file is not None:
 # =========================
 # MAIN LAYOUT (3 SPALTEN)
 # =========================
-left, middle, right = st.columns([4, 4, 3], gap="large")
+left, middle, right = st.columns([2, 2, 2], gap="large")
 
 # =========================
 # LINKS: DATENBASIS
@@ -88,12 +98,19 @@ with middle:
 
     if corr is not None:
         st.markdown(f"**Koeffizienten-Matrix ({sheet_input})**")
-        # Visualisierung der Korrelationstabelle mit farblichen Highlights (Hitzekarte)
-        st.dataframe(
-            corr.style.background_gradient(cmap="coolwarm", axis=None).format(precision=3),
-            use_container_width=True,
-            height=450
-        )
+        # Abgesicherte Visualisierung (falls matplotlib trotz Installation zickt)
+        try:
+            st.dataframe(
+                corr.style.background_gradient(cmap="coolwarm", axis=None).format(precision=3),
+                use_container_width=True,
+                height=450
+            )
+        except Exception:
+            st.dataframe(
+                corr.round(3),
+                use_container_width=True,
+                height=450
+            )
     else:
         st.info("Warte auf Daten für die Korrelationsmatrix...")
 
