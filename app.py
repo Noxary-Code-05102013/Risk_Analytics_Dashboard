@@ -1,13 +1,3 @@
-import subprocess
-import sys
-
-# Erzwingt die automatische Installation benötigter Pakete direkt im Code
-for package in ["openpyxl", "matplotlib"]:
-    try:
-        __import__(package)
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
 import streamlit as st
 import pandas as pd
 import io
@@ -98,7 +88,6 @@ with middle:
 
     if corr is not None:
         st.markdown(f"**Koeffizienten-Matrix ({sheet_input})**")
-        # Abgesicherte Visualisierung (falls matplotlib trotz Installation zickt)
         try:
             st.dataframe(
                 corr.style.background_gradient(cmap="coolwarm", axis=None).format(precision=3),
